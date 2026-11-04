@@ -1,10 +1,8 @@
-
 apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: task-manager
-  namespace: default
+  name: task-manager-deployment
 
 spec:
   replicas: 2
@@ -22,9 +20,9 @@ spec:
       containers:
         - name: task-manager
 
-          image: ghcr.io/YOUR_USERNAME/task-manager-api:latest
+          image: ghcr.io/bq-nikita-58/task-manager-api:latest
 
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
 
           ports:
             - containerPort: 3000
@@ -44,13 +42,13 @@ spec:
             httpGet:
               path: /health
               port: 3000
-            initialDelaySeconds: 10
-            periodSeconds: 15
+            initialDelaySeconds: 15
+            periodSeconds: 20
 
           resources:
             requests:
               cpu: "100m"
-              memory: "64Mi"
+              memory: "128Mi"
             limits:
               cpu: "500m"
               memory: "256Mi"
