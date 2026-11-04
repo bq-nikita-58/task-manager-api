@@ -109,3 +109,43 @@ jobs:
           tags: |
             ${{ steps.image.outputs.name }}:${{ github.sha }}
             ${{ steps.image.outputs.name }}:latest
+  # ==========================================
+  # JOB 3: DEPLOY TO KUBERNETES
+  # ==========================================
+
+  deploy:
+    name: Deploy to Minikube
+
+    # Wait until the Docker image is published.
+    needs: publish-image
+
+    # Deploy only on pushes to main.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    # Use our Mac's self-hosted runner.
+    runs-on: [self-hosted, macOS, ARM64, minikube]
+
+    steps:
+
+      # Step 1: Check Kubernetes connection
+      - name: Check Kubernetes connection
+        run: |
+          kubectl get nodes
+
+      # Step 2: Update Deployment with the new image
+      - name: Deploy new Docker image
+        run: |
+          kubectl set image deployment/task-manager-deployment \
+            task-manager=ghcr.io/bq-nikita-58/task-manager-api:${GITHUB_SHA}
+
+      # Step 3: Wait for rollout
+      - name: Wait for deployment rollout
+        run: |
+          kubectl rollout status deployment/task-manager-deployment --timeout=180s
+
+      # Step 4: Verify deployment
+      - name: Verify deployment
+        run: |
+          kubectl get deployments
+          kubectl get pods
+          kubectl get services            
