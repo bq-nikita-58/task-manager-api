@@ -1,0 +1,52 @@
+
+name: Task Manager CI
+
+# Start the workflow on pushes and pull requests
+# targeting the main branch.
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+# Default permissions: read-only access to the repository.
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+
+    # Run this job on a GitHub-hosted Ubuntu machine.
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # Step 1: Download the repository code.
+      - name: Checkout source code
+        uses: actions/checkout@v6
+
+      # Step 2: Install the required Node.js version.
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      # Step 3: Install exact dependency versions.
+      - name: Install dependencies
+        run: npm ci
+
+      # Step 4: Run automated tests.
+      - name: Run tests
+        run: npm test
+
+      # Step 5: Validate application build.
+      - name: Build application
+        run: npm run build
+
+      # Step 6: Validate Docker image build.
+      - name: Build Docker image
+        run: docker build -t task-manager-api:test .
