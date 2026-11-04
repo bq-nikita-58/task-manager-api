@@ -132,8 +132,8 @@ function createApp() {
     tasks.splice(taskIndex, 1);
 
     res.status(200).json({
-        status: "broken",
-        service: "task-manager-api",
+      success: true,
+      message: "Task deleted successfully",
     });
   });
 
